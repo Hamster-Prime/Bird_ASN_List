@@ -36,46 +36,19 @@ jobs:
         # 循环运行脚本
         for asn in "${asns[@]}"; do
           echo "Processing $asn..."
-          # 运行脚本，如果不成功不立即退出，但会记录
+          # 运行脚本
           if python fetch_asn_cidr_he.py "$asn"; then
              echo "Successfully processed $asn"
           else
              echo "Failed to process $asn"
           fi
           
-          # 在请求之间添加额外的随机等待，降低被封几率
+          # 随机等待
           sleep $((RANDOM % 10 + 5))
         done
 
-    - name: Update README.md
-      run: |
-        UPDATE_TIME=$(date -u --iso-8601=seconds)
-        > README.md
-        echo "# 全球 ASN CIDR 列表" >> README.md
-        echo "" >> README.md
-        echo "**说明：** 此数据每日从 [bgp.he.net](https://bgp.he.net/) 自动获取。" >> README.md
-        echo "" >> README.md
-        echo "---" >> README.md
-        echo "" >> README.md
-        echo "## 📊 统计信息" >> README.md
-        echo "" >> README.md
-        echo "**最后更新时间：** ${UPDATE_TIME}" >> README.md
-        echo "" >> README.md
-        TOTAL_FILES=$(find ASN_CIDR -type f -name "*.conf" | wc -l)
-        TOTAL_CIDRS=$(grep -h "route" ASN_CIDR/*.conf | wc -l)
-        echo "### 📦 概览" >> README.md
-        echo "- **包含数据的 ASN 总数：** ${TOTAL_FILES}" >> README.md
-        echo "- **IP CIDR 块总数：** ${TOTAL_CIDRS}" >> README.md
-        echo "" >> README.md
-        echo "### 🛠️ ASN CIDR 详情" >> README.md
-        echo "" >> README.md
-        echo "| ASN | CIDR 数量 |" >> README.md
-        echo "|-----|------------|" >> README.md
-        grep -c "route" ASN_CIDR/*.conf | sed -e 's/ASN_CIDR\///' -e 's/.conf:/ /' | sort -k2 -nr | awk '{printf "| %-10s | %-10s |\n", $1, $2}' >> README.md
-        echo "" >> README.md
-        echo "---" >> README.md
-        echo "" >> README.md
-        echo "*此信息由 GitHub Actions 于 ${UPDATE_TIME} 自动更新*" >> README.md
+    - name: Generate README
+      run: python generate_readme.py
 
     - name: Commit and push changes
       run: |
@@ -84,11 +57,12 @@ jobs:
         
         curr_date=$(date +'%Y-%m-%d %H:%M:%S')
         
-        git add ASN_CIDR/ README.md
+        # 添加生成的文件和数据文件
+        git add ASN_CIDR/ README.md asn_data.json
         
         if git diff --staged --quiet; then
           echo "No changes to commit."
         else
-          git commit -m "Auto-update ASN CIDR lists from bgp.he.net - $curr_date"
+          git commit -m "Auto-update ASN CIDR lists and README - $curr_date"
           git push
         fi
