@@ -5,6 +5,21 @@ import os
 import time
 import random
 import sys
+import json
+import re
+
+def load_asn_data(filepath='asn_data.json'):
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_asn_data(data, filepath='asn_data.json'):
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
 def fetch_cidr(asn):
     # 处理 ASN 格式
@@ -31,8 +46,6 @@ def fetch_cidr(asn):
         
         if response.status_code == 403:
             print(f"错误: 访问被拒绝 (403)。bgp.he.net 可能检测到了爬虫。")
-            # 尝试打印部分响应内容以供调试
-            # print(response.text[:500])
             return False
             
         if response.status_code != 200:
@@ -41,8 +54,23 @@ def fetch_cidr(asn):
 
         soup = BeautifulSoup(response.text, 'html.parser')
         
+        # 提取 ASN 名称
+        asn_name = "Unknown"
+        page_title = soup.title.string if soup.title else ""
+        # 尝试匹配 "ASxxxxx (Name) ..." 格式
+        match = re.search(r'AS\d+\s+\((.*?)\)', page_title)
+        if match:
+            asn_name = match.group(1)
+        else:
+            # 备用：尝试从 h1 或其他位置获取，或者直接使用 title 的一部分
+            if page_title:
+                parts = page_title.split(' ', 1)
+                if len(parts) > 1:
+                    asn_name = parts[1].split('-')[0].strip()
+        
+        print(f"ASN 名称: {asn_name}")
+
         # 查找前缀表格
-        # bgp.he.net 的前缀通常在 id="table_prefixes4" 和 id="table_prefixes6" 的表格中
         ipv4_prefixes = []
         ipv6_prefixes = []
         
@@ -55,9 +83,7 @@ def fetch_cidr(asn):
                 for row in rows:
                     cols = row.find_all('td')
                     if cols and len(cols) > 0:
-                        # 第一列通常是前缀
                         prefix = cols[0].get_text(strip=True)
-                        # 简单的校验
                         if '/' in prefix:
                             ipv4_prefixes.append(prefix)
                             
@@ -76,7 +102,7 @@ def fetch_cidr(asn):
 
         print(f"找到 {len(ipv4_prefixes)} 个 IPv4 前缀, {len(ipv6_prefixes)} 个 IPv6 前缀。")
 
-        # 保存结果
+        # 保存结果到文件
         output_dir = 'ASN_CIDR'
         os.makedirs(output_dir, exist_ok=True)
         
@@ -84,7 +110,7 @@ def fetch_cidr(asn):
         if ipv4_prefixes:
             filename = os.path.join(output_dir, f"{asn}.conf")
             with open(filename, 'w') as f:
-                f.write(f"# {asn} IPv4 CIDR list from bgp.he.net\n")
+                f.write(f"# {asn} {asn_name} IPv4 CIDR list from bgp.he.net\n")
                 f.write(f"# Last Updated: {time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())} UTC\n")
                 for net in ipv4_prefixes:
                     f.write(f"route {net} via \"lo\";\n")
@@ -94,11 +120,22 @@ def fetch_cidr(asn):
         if ipv6_prefixes:
             filename_v6 = os.path.join(output_dir, f"{asn}_IPv6.conf")
             with open(filename_v6, 'w') as f:
-                f.write(f"# {asn} IPv6 CIDR list from bgp.he.net\n")
+                f.write(f"# {asn} {asn_name} IPv6 CIDR list from bgp.he.net\n")
                 f.write(f"# Last Updated: {time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())} UTC\n")
                 for net in ipv6_prefixes:
                     f.write(f"route {net} via \"lo\";\n")
             print(f"已保存: {filename_v6}")
+            
+        # 更新 JSON 数据
+        current_data = load_asn_data()
+        current_data[asn] = {
+            "asn": asn,
+            "name": asn_name,
+            "v4_count": len(ipv4_prefixes),
+            "v6_count": len(ipv6_prefixes),
+            "updated_at": time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
+        }
+        save_asn_data(current_data)
             
         return True
 
