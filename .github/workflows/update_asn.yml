@@ -6,47 +6,54 @@ on:
   workflow_dispatch:
 
 jobs:
-  update:
+  update-asn:
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.x'
+        python-version: '3.10'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Download and decompress IP list
+    - name: Fetch CIDRs from bgp.he.net
       run: |
-        curl -L "https://ipinfo.io/data/ipinfo_lite.csv.gz?token=${{ secrets.IPINFO_TOKEN }}" -o ipinfo_lite.csv.gz
-        gzip -df ipinfo_lite.csv.gz
-
-    - name: Run extraction script
-      run: |
+        # 定义需要处理的 ASN 列表
         asns=("AS396856" "AS51894" "AS32590" "AS44907" "AS62014" "AS59930" "AS62041" "AS211157")
+        
+        # 确保目录存在
         mkdir -p ASN_CIDR
+        
+        # 循环运行脚本
         for asn in "${asns[@]}"; do
           echo "Processing $asn..."
-          python extract_asn.py "$asn"
+          # 运行脚本，如果不成功不立即退出，但会记录
+          if python fetch_asn_cidr_he.py "$asn"; then
+             echo "Successfully processed $asn"
+          else
+             echo "Failed to process $asn"
+          fi
+          
+          # 在请求之间添加额外的随机等待，降低被封几率
+          sleep $((RANDOM % 10 + 5))
         done
 
     - name: Update README.md
       run: |
         UPDATE_TIME=$(date -u --iso-8601=seconds)
-        # 如果 README.md 不存在，先创建它，或者保留原有的内容（这里采取覆盖策略以模仿参考脚本）
         > README.md
-        echo "# 常用 ASN CIDR 列表" >> README.md
+        echo "# 全球 ASN CIDR 列表" >> README.md
         echo "" >> README.md
-        echo "**说明：** 此数据每日从 [ipinfo.io](https://ipinfo.io/) 自动更新。" >> README.md
+        echo "**说明：** 此数据每日从 [bgp.he.net](https://bgp.he.net/) 自动获取。" >> README.md
         echo "" >> README.md
         echo "---" >> README.md
         echo "" >> README.md
@@ -71,10 +78,17 @@ jobs:
         echo "*此信息由 GitHub Actions 于 ${UPDATE_TIME} 自动更新*" >> README.md
 
     - name: Commit and push changes
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: "Automated ASN list update"
-        file_pattern: "ASN_CIDR/*.conf README.md"
-        commit_user_name: "GitHub Actions"
-        commit_user_email: "actions@github.com"
-        commit_author: "GitHub Actions <actions@github.com>"
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+        curr_date=$(date +'%Y-%m-%d %H:%M:%S')
+        
+        git add ASN_CIDR/ README.md
+        
+        if git diff --staged --quiet; then
+          echo "No changes to commit."
+        else
+          git commit -m "Auto-update ASN CIDR lists from bgp.he.net - $curr_date"
+          git push
+        fi
