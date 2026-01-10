@@ -1,0 +1,80 @@
+name: Update ASN CIDR
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas
+
+    - name: Download and decompress IP list
+      run: |
+        curl -L "https://ipinfo.io/data/ipinfo_lite.csv.gz?token=${{ secrets.IPINFO_TOKEN }}" -o ipinfo_lite.csv.gz
+        gzip -df ipinfo_lite.csv.gz
+
+    - name: Run extraction script
+      run: |
+        asns=("AS396856" "AS51894" "AS32590" "AS44907" "AS62014" "AS59930" "AS62041" "AS211157")
+        mkdir -p ASN_CIDR
+        for asn in "${asns[@]}"; do
+          echo "Processing $asn..."
+          python extract_asn.py "$asn"
+        done
+
+    - name: Update README.md
+      run: |
+        UPDATE_TIME=$(date -u --iso-8601=seconds)
+        # 如果 README.md 不存在，先创建它，或者保留原有的内容（这里采取覆盖策略以模仿参考脚本）
+        > README.md
+        echo "# 常用 ASN CIDR 列表" >> README.md
+        echo "" >> README.md
+        echo "**说明：** 此数据每日从 [ipinfo.io](https://ipinfo.io/) 自动更新。" >> README.md
+        echo "" >> README.md
+        echo "---" >> README.md
+        echo "" >> README.md
+        echo "## 📊 统计信息" >> README.md
+        echo "" >> README.md
+        echo "**最后更新时间：** ${UPDATE_TIME}" >> README.md
+        echo "" >> README.md
+        TOTAL_FILES=$(find ASN_CIDR -type f -name "*.conf" | wc -l)
+        TOTAL_CIDRS=$(grep -h "route" ASN_CIDR/*.conf | wc -l)
+        echo "### 📦 概览" >> README.md
+        echo "- **包含数据的 ASN 总数：** ${TOTAL_FILES}" >> README.md
+        echo "- **IP CIDR 块总数：** ${TOTAL_CIDRS}" >> README.md
+        echo "" >> README.md
+        echo "### 🛠️ ASN CIDR 详情" >> README.md
+        echo "" >> README.md
+        echo "| ASN | CIDR 数量 |" >> README.md
+        echo "|-----|------------|" >> README.md
+        grep -c "route" ASN_CIDR/*.conf | sed -e 's/ASN_CIDR\///' -e 's/.conf:/ /' | sort -k2 -nr | awk '{printf "| %-10s | %-10s |\n", $1, $2}' >> README.md
+        echo "" >> README.md
+        echo "---" >> README.md
+        echo "" >> README.md
+        echo "*此信息由 GitHub Actions 于 ${UPDATE_TIME} 自动更新*" >> README.md
+
+    - name: Commit and push changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "Automated ASN list update"
+        file_pattern: "ASN_CIDR/*.conf README.md"
+        commit_user_name: "GitHub Actions"
+        commit_user_email: "actions@github.com"
+        commit_author: "GitHub Actions <actions@github.com>"
