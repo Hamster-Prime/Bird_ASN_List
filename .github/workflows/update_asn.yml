@@ -28,7 +28,7 @@ jobs:
     - name: Fetch CIDRs from bgp.he.net
       run: |
         # 定义需要处理的 ASN 列表
-        asns=("AS396856" "AS51894" "AS32590" "AS44907" "AS62014" "AS59930" "AS62041" "AS211157")
+        asns=("AS396856" "AS51894" "AS32590" "AS44907" "AS62014" "AS59930" "AS62041" "AS211157" "AS402075")
         
         # 确保目录存在
         mkdir -p ASN_CIDR
