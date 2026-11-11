@@ -6,7 +6,7 @@
 
 ## 📊 统计信息
 
-**最后更新时间：** 2026-11-10 05:57:40 UTC
+**最后更新时间：** 2026-11-11 04:43:53 UTC
 
 ### 📦 概览
 - **包含数据的 ASN 总数：** 10
@@ -17,16 +17,16 @@
 
 | ASN | 名称 | IPv4 数量 | IPv6 数量 | 更新时间 (UTC) |
 |-----|------|-----------|-----------|----------------|
-| AS32590 | Valve Corporation | 45 | 35 | 2026-11-10 05:55:55 |
-| AS44907 | Telegram Messenger Inc | 3 | 1 | 2026-11-10 05:56:08 |
-| AS51894 | Mikrotikls SIA | 2 | 1 | 2026-11-10 05:55:40 |
-| AS59930 | Telegram Messenger Inc | 2 | 1 | 2026-11-10 05:56:37 |
-| AS62014 | Telegram Messenger Inc | 7 | 1 | 2026-11-10 05:56:21 |
-| AS62041 | Telegram Messenger Inc | 24 | 1 | 2026-11-10 05:56:56 |
-| AS211157 | Telegram Messenger Inc | 2 | 1 | 2026-11-10 05:57:12 |
-| AS396856 | Sharon Networks, LLC | 16 | 0 | 2026-11-10 05:55:25 |
-| AS402075 | Peekabo Networks | 4 | 0 | 2026-11-10 05:57:21 |
-| AS402139 | Peekabo Networks | 6 | 0 | 2026-11-10 05:57:33 |
+| AS32590 | Valve Corporation | 45 | 35 | 2026-11-11 04:41:54 |
+| AS44907 | Telegram Messenger Inc | 3 | 1 | 2026-11-11 04:42:11 |
+| AS51894 | Mikrotikls SIA | 2 | 1 | 2026-11-11 04:41:34 |
+| AS59930 | Telegram Messenger Inc | 2 | 1 | 2026-11-11 04:42:40 |
+| AS62014 | Telegram Messenger Inc | 7 | 1 | 2026-11-11 04:42:29 |
+| AS62041 | Telegram Messenger Inc | 24 | 1 | 2026-11-11 04:42:58 |
+| AS211157 | Telegram Messenger Inc | 2 | 1 | 2026-11-11 04:43:16 |
+| AS396856 | Sharon Networks, LLC | 16 | 0 | 2026-11-11 04:41:19 |
+| AS402075 | Peekabo Networks | 4 | 0 | 2026-11-11 04:43:28 |
+| AS402139 | Peekabo Networks | 6 | 0 | 2026-11-11 04:43:44 |
 
 ---
 *此信息由 GitHub Actions 自动更新*
