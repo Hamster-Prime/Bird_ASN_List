@@ -2,71 +2,71 @@
   "AS396856": {
     "asn": "AS396856",
     "name": "Sharon Networks, LLC",
-    "v4_count": 16,
+    "v4_count": 14,
     "v6_count": 0,
-    "updated_at": "2026-11-27 06:41:50"
+    "updated_at": "2026-11-28 06:15:52"
   },
   "AS51894": {
     "asn": "AS51894",
     "name": "Mikrotikls SIA",
     "v4_count": 2,
     "v6_count": 1,
-    "updated_at": "2026-11-27 06:42:05"
+    "updated_at": "2026-11-28 06:16:08"
   },
   "AS32590": {
     "asn": "AS32590",
     "name": "Valve Corporation",
     "v4_count": 45,
     "v6_count": 35,
-    "updated_at": "2026-11-27 06:42:17"
+    "updated_at": "2026-11-28 06:16:18"
   },
   "AS44907": {
     "asn": "AS44907",
     "name": "Telegram Messenger Inc",
     "v4_count": 3,
     "v6_count": 1,
-    "updated_at": "2026-11-27 06:42:34"
+    "updated_at": "2026-11-28 06:16:35"
   },
   "AS62014": {
     "asn": "AS62014",
     "name": "Telegram Messenger Inc",
     "v4_count": 7,
     "v6_count": 1,
-    "updated_at": "2026-11-27 06:42:46"
+    "updated_at": "2026-11-28 06:16:50"
   },
   "AS59930": {
     "asn": "AS59930",
     "name": "Telegram Messenger Inc",
     "v4_count": 2,
     "v6_count": 1,
-    "updated_at": "2026-11-27 06:43:05"
+    "updated_at": "2026-11-28 06:16:59"
   },
   "AS62041": {
     "asn": "AS62041",
     "name": "Telegram Messenger Inc",
     "v4_count": 24,
     "v6_count": 1,
-    "updated_at": "2026-11-27 06:43:21"
+    "updated_at": "2026-11-28 06:17:12"
   },
   "AS211157": {
     "asn": "AS211157",
     "name": "Telegram Messenger Inc",
     "v4_count": 2,
     "v6_count": 1,
-    "updated_at": "2026-11-27 06:43:41"
+    "updated_at": "2026-11-28 06:17:22"
   },
   "AS402075": {
     "asn": "AS402075",
     "name": "Peekabo Networks",
     "v4_count": 4,
     "v6_count": 0,
-    "updated_at": "2026-11-27 06:43:52"
+    "updated_at": "2026-11-28 06:17:30"
   },
   "AS402139": {
     "asn": "AS402139",
     "name": "Peekabo Networks",
     "v4_count": 6,
     "v6_count": 0,
-    "updated_at": "2026-11-27 06:44:00"
+    "updated_at": "2026-11-28 06:17:46"
   }
 }
